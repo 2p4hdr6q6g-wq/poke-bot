@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokeLogbook - 我的收藏</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl font-bold mb-8 text-yellow-400">🔥 PokeLogbook 我的收藏</h1>
+        
+        <div id="collection-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <p class="text-gray-400">正在從數據庫載入收藏...</p>
+        </div>
+    </div>
+
+    <script>
+        // 1. 設定你的 Supabase (聽日我哋會將呢啲變做安全嘅環境變數)
+        const SUPABASE_URL = "https://xcjygoliiiaghsbrnmrs.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhjanlnb2xpaWlhZ2hzYnJubXJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMDgxMTEsImV4cCI6MjA5MDc4NDExMX0.N98DJPO_-bh0h-vRwoDnPNIj2le7ojI4VTdD0Om2tCs";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadCollection() {
+            // 2. 從 my_collection 表格攞數
+            const { data, error } = await supabase.from('my_collection').select('*');
+
+            const grid = document.getElementById('collection-grid');
+            grid.innerHTML = ''; // 清除加載中文字
+
+            if (error) {
+                grid.innerHTML = `<p class="text-red-500">錯誤: ${error.message}</p>`;
+                return;
+            }
+
+            // 3. 將每一張卡顯示出嚟
+            data.forEach(card => {
+                const cardHtml = `
+                    <div class="bg-gray-800 rounded-xl p-4 shadow-lg border border-gray-700">
+                        <img src="${card.image_url}" alt="${card.card_name}" class="w-full rounded-lg mb-4">
+                        <h2 class="text-xl font-bold">${card.card_name}</h2>
+                        <p class="text-gray-400 text-sm">${card.set_name}</p>
+                        <div class="mt-4 flex justify-between">
+                            <span class="text-green-400">買入: $${card.purchase_price_hkd}</span>
+                            <span class="text-blue-400">市價: $${card.current_market_usd}</span>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += cardHtml;
+            });
+        }
+
+        loadCollection();
+    </script>
+</body>
+</html>
