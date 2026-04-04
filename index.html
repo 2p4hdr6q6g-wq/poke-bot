@@ -20,36 +20,56 @@
         // 1. 設定你的 Supabase (聽日我哋會將呢啲變做安全嘅環境變數)
         const SUPABASE_URL = "https://xcjygoliiiaghsbrnmrs.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhjanlnb2xpaWlhZ2hzYnJubXJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMDgxMTEsImV4cCI6MjA5MDc4NDExMX0.N98DJPO_-bh0h-vRwoDnPNIj2le7ojI4VTdD0Om2tCs";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        async function loadCollection() {
-            // 2. 從 my_collection 表格攞數
-            const { data, error } = await supabase.from('my_collection').select('*');
+            const HKD_RATE = 7.82;
 
-            const grid = document.getElementById('collection-grid');
-            grid.innerHTML = ''; // 清除加載中文字
+            async function loadCollection() {
+                 // 記得將變數名改返做你之前用緊嗰個，例如 supabaseClient
+                 const { data, error } = await supabaseClient.from('my_collection').select('*');
 
-            if (error) {
-                grid.innerHTML = `<p class="text-red-500">錯誤: ${error.message}</p>`;
-                return;
-            }
+                 const grid = document.getElementById('collection-grid');
+                 grid.innerHTML = ''; 
 
-            // 3. 將每一張卡顯示出嚟
-            data.forEach(card => {
-                const cardHtml = `
-                    <div class="bg-gray-800 rounded-xl p-4 shadow-lg border border-gray-700">
-                        <img src="${card.image_url}" alt="${card.card_name}" class="w-full rounded-lg mb-4">
-                        <h2 class="text-xl font-bold">${card.card_name}</h2>
-                        <p class="text-gray-400 text-sm">${card.set_name}</p>
-                        <div class="mt-4 flex justify-between">
-                            <span class="text-green-400">買入: $${card.purchase_price_hkd}</span>
-                            <span class="text-blue-400">市價: $${card.current_market_usd}</span>
+                 if (error) {
+                    grid.innerHTML = `<p class="text-red-500">錯誤: ${error.message}</p>`;
+                    return;
+                }
+
+                data.forEach(card => {
+                    // 計算現時港幣價值 (美金市值 * 匯率)
+                    const currentHkd = (card.current_market_usd * HKD_RATE).toFixed(0);
+        
+                    const cardHtml = `
+                        <div class="bg-gray-800 rounded-2xl p-4 shadow-2xl border border-gray-700 hover:border-yellow-500 transition-all duration-300">
+                            <div class="relative mb-4">
+                                <img src="${card.image_url}" alt="${card.card_name}" class="w-full rounded-xl shadow-lg">
+                                ${card.rarity ? `<span class="absolute top-2 right-2 bg-black/70 text-yellow-400 text-[10px] font-bold px-2 py-1 rounded-md border border-yellow-400/50 uppercase">${card.rarity}</span>` : ''}
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between items-start">
+                                    <h2 class="text-lg font-bold text-white leading-tight">${card.card_name}</h2>
+                                    <span class="text-gray-500 text-[10px] font-mono">${card.card_number || ''}</span>
+                                </div>
+                                <p class="text-gray-400 text-xs italic">${card.set_name} <span class="text-gray-600">|</span> ${card.expansion || ''}</p>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-t border-gray-700">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-gray-500 text-[10px] uppercase">購入價</span>
+                                    <span class="text-white font-mono font-bold text-sm">HK$${card.purchase_price_hkd}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500 text-[10px] uppercase">估計市值</span>
+                                    <span class="text-green-400 font-mono font-bold text-sm">HK$${currentHkd}</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                `;
-                grid.innerHTML += cardHtml;
-            });
-        }
+                    `;
+                    grid.innerHTML += cardHtml;
+                });
+            }
 
         loadCollection();
     </script>
