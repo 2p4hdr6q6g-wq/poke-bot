@@ -3,75 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PokeLogbook - 我的收藏</title>
+    <title>PokeLogbook - 香港專業寶可夢情報數據庫</title>
+    
+    <meta name="description" content="PokeLogbook 提供即時日版寶可夢卡牌 M4 忍者旋風市場數據，配合日元自動匯率換算港幣。">
+    <meta name="keywords" content="寶可夢, PTCG, 查價, 忍者旋風, M4, 甲賀忍蛙, 價格, 香港, 日版">
+    
+    <link rel="icon" href="https://fav.farm/🔮">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; background: radial-gradient(circle at top right, #1e293b, #0f172a); min-height: 100vh; }
+        .glass-nav { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        .card-container { transition: all 0.3s ease; border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(30, 41, 59, 0.4); }
+        .card-container:hover { transform: translateY(-5px); border-color: #eab308; box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.6); }
+        .modal-overlay { backdrop-filter: blur(15px); background: rgba(0, 0, 0, 0.85); }
+        footer a:hover { color: #eab308; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
 </head>
-<body class="bg-gray-900 text-white p-8">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-4xl font-bold mb-8 text-yellow-400">🔥 PokeLogbook 我的收藏</h1>
-        
-        <div id="collection-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <p class="text-gray-400">正在從數據庫載入收藏...</p>
+<body class="text-slate-100 flex flex-col min-h-screen">
+
+    <nav class="glass-nav sticky top-0 z-40 px-6 py-4">
+        <div class="max-w-[1700px] mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="showSection('home')">
+                <i class="fa-solid fa-wand-magic-sparkles text-2xl text-yellow-400"></i>
+                <span class="font-black tracking-tighter text-2xl text-yellow-400 uppercase">POKELOGBOOK</span>
+            </div>
+            <div class="flex gap-8 text-sm font-bold tracking-widest">
+                <button onclick="showSection('home')" class="hover:text-yellow-400 transition-all uppercase">首頁</button>
+                <button onclick="showSection('m4')" class="hover:text-yellow-400 transition-all uppercase underline-offset-8">忍者旋風 M4</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-[1700px] mx-auto p-6 flex-grow w-full">
+        <section id="section-home" class="py-24 text-center">
+            <div class="inline-block px-3 py-1 mb-6 text-xs font-bold tracking-widest text-yellow-400 border border-yellow-400/20 rounded-full bg-yellow-400/5 uppercase tracking-tighter">ESTABLISHED 2026</div>
+            <h1 class="text-6xl md:text-8xl font-black mb-8 leading-none tracking-tighter italic uppercase">掌握數據 <br><span class="text-yellow-400">主宰市場</span></h1>
+            <p class="text-slate-400 max-w-xl mx-auto text-xl mb-12 font-medium">香港專業寶可夢情報網。即時追蹤日版市場脈動，提供精準市價參考。</p>
+            <button onclick="showSection('m4')" class="bg-yellow-400 text-slate-900 px-12 py-5 rounded-2xl font-black text-xl hover:bg-white transition-all shadow-2xl shadow-yellow-400/20 active:scale-95">
+                立即進入數據中心 <i class="fa-solid fa-chevron-right ml-2 text-sm"></i>
+            </button>
+        </section>
+
+        <section id="section-m4" class="hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <header class="mb-12 flex flex-col md:flex-row justify-between items-center gap-6 pb-8 border-b border-slate-800/50">
+                <div class="w-full text-left">
+                    <h2 class="text-5xl font-black text-white tracking-tighter italic uppercase mb-2">忍者旋風 <span class="text-yellow-400">M4</span></h2>
+                    <span id="last-update" class="bg-slate-800 px-3 py-1 rounded text-yellow-500/80 tracking-widest font-mono text-xs italic">正在同步即時匯率...</span>
+                </div>
+                <div class="w-full md:w-96 relative group">
+                    <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-yellow-400 transition-colors"></i>
+                    <input type="text" id="searchInput" onkeyup="searchCards()" placeholder="搜尋編號或卡片名稱..." 
+                           class="w-full bg-slate-800/40 border-2 border-slate-700 rounded-2xl pl-14 pr-4 py-4 text-lg focus:outline-none focus:border-yellow-400 transition-all font-bold placeholder:text-slate-600">
+                </div>
+            </header>
+            <div id="collection-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 pb-20 text-left"></div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-950 border-t border-slate-800 px-8 py-16">
+        <div class="max-w-[1700px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
+            <div class="text-left">
+                <div class="flex items-center gap-3 mb-8">
+                    <i class="fa-solid fa-wand-magic-sparkles text-2xl text-yellow-400"></i>
+                    <span class="font-black text-2xl text-yellow-400 tracking-tighter">POKELOGBOOK</span>
+                </div>
+                <p class="text-slate-500 text-sm leading-relaxed max-w-sm">致力於為香港寶可夢卡牌玩家提供最透明、即時的市場行情分析。數據源自公開市場成交紀錄，僅供參考。</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 text-left">
+                <div>
+                    <h4 class="font-black text-white mb-6 uppercase tracking-widest text-xs">法律資訊</h4>
+                    <ul class="text-slate-500 text-xs flex flex-col gap-4">
+                        <li><button onclick="alert('免責聲明：本網站所提供之數據僅供參考，不構成任何投資建議。市場價格波動劇烈，交易前請自行評估風險。')" class="hover:text-yellow-400 transition-colors">免責聲明</button></li>
+                        <li><button onclick="alert('版權聲明：本網站所有卡片圖像與版權均屬任天堂、Creatures Inc. 及 GAME FREAK inc. 所有。本站僅作教育與學術資訊分享用途。')" class="hover:text-yellow-400 transition-colors">版權聲明</button></li>
+                        <li><button onclick="alert('隱私政策：PokeLogbook 尊重您的隱私。本網站僅顯示公開市場數據，不會主動收集、儲存或追蹤任何訪問者的個人身份識別資料。')" class="hover:text-yellow-400 transition-colors">隱私政策</button></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-black text-white mb-6 uppercase tracking-widest text-xs">聯絡與支持</h4>
+                    <div class="text-slate-500 text-xs flex flex-col gap-4">
+                        <p class="leading-relaxed">如有任何數據糾錯或建議，<br>請透過郵件與我們聯絡：</p>
+                        <p class="flex items-center gap-2">
+                            <i class="fa-regular fa-envelope text-yellow-400"></i>
+                            <a href="mailto:pokelogbook@gmail.com" class="hover:text-yellow-400 transition-colors font-bold">pokelogbook@gmail.com</a>
+                        </p>
+                        <p class="mt-4 font-bold opacity-50 uppercase tracking-widest text-[10px]">© 2026 PokeLogbook HK</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="card-modal" class="modal-overlay fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div class="bg-slate-900 rounded-3xl p-8 border border-slate-700/50 max-w-5xl w-full max-h-[90vh] overflow-y-auto relative animate-in zoom-in duration-300">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-3xl text-slate-500 hover:text-white transition-all">&times;</button>
+            <div class="grid grid-cols-1 md:grid-cols-[1fr,1.5fr] gap-12 pt-4 text-left">
+                <div class="bg-slate-950/50 rounded-2xl p-6 aspect-[3/4] flex items-center justify-center shadow-inner border border-slate-800">
+                    <img id="modal-image" src="" alt="" class="max-w-full max-h-full object-contain">
+                </div>
+                <div class="flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-6">
+                            <span id="modal-number" class="text-3xl font-black text-slate-500 italic tracking-tighter">#---</span>
+                            <span id="modal-rarity" class="px-3 py-1 rounded-lg border-2 font-black text-xs">C</span>
+                        </div>
+                        <h2 id="modal-name" class="text-4xl md:text-5xl font-black text-white leading-tight mb-4 tracking-tight uppercase">---</h2>
+                        <p id="modal-expansion" class="text-sm text-slate-500 font-bold tracking-widest uppercase opacity-70 mb-10">忍者旋風 M4</p>
+                    </div>
+                    <div class="pt-8 border-t border-slate-700/50 flex justify-between items-end">
+                        <div>
+                            <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1 italic">當前港幣預估價</p>
+                            <p id="modal-price" class="text-5xl font-black text-green-400 italic tracking-tighter">HK$---</p>
+                        </div>
+                        <div class="bg-green-500/10 px-4 py-2 rounded-xl border border-green-500/20">
+                            <span id="modal-rate-info" class="text-green-500 text-[10px] font-black tracking-tighter uppercase italic leading-none">匯率同步中...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // 1. 設定你的 Supabase (聽日我哋會將呢啲變做安全嘅環境變數)
         const SUPABASE_URL = "https://xcjygoliiiaghsbrnmrs.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhjanlnb2xpaWlhZ2hzYnJubXJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMDgxMTEsImV4cCI6MjA5MDc4NDExMX0.N98DJPO_-bh0h-vRwoDnPNIj2le7ojI4VTdD0Om2tCs";
-            const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-            const HKD_RATE = 7.82;
-
-            async function loadCollection() {
-                 // 記得將變數名改返做你之前用緊嗰個，例如 supabaseClient
-                 const { data, error } = await supabaseClient.from('my_collection').select('*');
-
-                 const grid = document.getElementById('collection-grid');
-                 grid.innerHTML = ''; 
-
-                 if (error) {
-                    grid.innerHTML = `<p class="text-red-500">錯誤: ${error.message}</p>`;
-                    return;
-                }
-
-                data.forEach(card => {
-                    // 計算現時港幣價值 (美金市值 * 匯率)
-                    const currentHkd = (card.current_market_usd * HKD_RATE).toFixed(0);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         
-                    const cardHtml = `
-                        <div class="bg-gray-800 rounded-2xl p-4 shadow-2xl border border-gray-700 hover:border-yellow-500 transition-all duration-300">
-                            <div class="relative mb-4">
-                                <img src="${card.image_url}" alt="${card.card_name}" class="w-full rounded-xl shadow-lg">
-                                ${card.rarity ? `<span class="absolute top-2 right-2 bg-black/70 text-yellow-400 text-[10px] font-bold px-2 py-1 rounded-md border border-yellow-400/50 uppercase">${card.rarity}</span>` : ''}
-                            </div>
+        let JPY_TO_HKD = 0.0515; 
 
-                            <div class="space-y-1">
-                                <div class="flex justify-between items-start">
-                                    <h2 class="text-lg font-bold text-white leading-tight">${card.card_name}</h2>
-                                    <span class="text-gray-500 text-[10px] font-mono">${card.card_number || ''}</span>
-                                </div>
-                                <p class="text-gray-400 text-xs italic">${card.set_name} <span class="text-gray-600">|</span> ${card.expansion || ''}</p>
-                            </div>
+        async function fetchExchangeRate() {
+            try {
+                const response = await fetch('https://open.er-api.com/v6/latest/JPY');
+                const data = await response.json();
+                JPY_TO_HKD = data.rates.HKD;
+            } catch (e) { console.error("匯率失敗", e); }
+        }
 
-                            <div class="mt-4 pt-3 border-t border-gray-700">
-                                <div class="flex justify-between items-center mb-1">
-                                    <span class="text-gray-500 text-[10px] uppercase">購入價</span>
-                                    <span class="text-white font-mono font-bold text-sm">HK$${card.purchase_price_hkd}</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-500 text-[10px] uppercase">估計市值</span>
-                                    <span class="text-green-400 font-mono font-bold text-sm">HK$${currentHkd}</span>
-                                </div>
+        function showSection(sectionId) {
+            document.getElementById('section-home').classList.add('hidden');
+            document.getElementById('section-m4').classList.add('hidden');
+            document.getElementById('section-' + sectionId).classList.remove('hidden');
+            if (sectionId === 'm4') initM4();
+            window.scrollTo(0, 0);
+        }
+
+        async function initM4() {
+            await fetchExchangeRate();
+            loadCollection();
+        }
+
+        function getRarityStyle(rarity) {
+            const r = rarity ? rarity.toUpperCase().trim() : '';
+            const base = "px-3 py-1 rounded-lg border-2 font-black text-xs ";
+            if (r === 'SAR') return base + "bg-yellow-500/10 text-yellow-400 border-yellow-500/50";
+            if (r === 'UR' || r === 'MUR') return base + "bg-orange-500/10 text-orange-400 border-orange-500/50";
+            if (r === 'SR') return base + "bg-blue-500/10 text-blue-400 border-blue-500/50";
+            if (r === 'AR') return base + "bg-purple-500/10 text-purple-400 border-purple-500/50";
+            return base + "bg-slate-700/50 text-slate-400 border-slate-600";
+        }
+
+        const modal = document.getElementById('card-modal');
+        function openModal(cardData) {
+            document.getElementById('modal-image').src = cardData.image_url;
+            document.getElementById('modal-number').innerText = `#${cardData.card_number || '---'}`;
+            document.getElementById('modal-name').innerText = cardData.card_name;
+            const currentHkd = (cardData.current_market_jpy * JPY_TO_HKD).toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('modal-price').innerText = `HK$${currentHkd}`;
+            document.getElementById('modal-rate-info').innerText = `即時匯率: 1 JPY = ${JPY_TO_HKD.toFixed(4)} HKD`;
+            const rarityTag = document.getElementById('modal-rarity');
+            rarityTag.innerText = cardData.rarity || 'C';
+            rarityTag.className = getRarityStyle(cardData.rarity);
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => { modal.classList.remove('opacity-0'); }, 10);
+        }
+
+        function closeModal() {
+            modal.classList.add('opacity-0');
+            setTimeout(() => { modal.classList.add('hidden'); document.body.style.overflow = ''; }, 300);
+        }
+
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+        function searchCards() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const items = document.getElementsByClassName('card-item');
+            for (let item of items) {
+                const name = item.getAttribute('data-name').toLowerCase();
+                const num = item.getAttribute('data-num').toLowerCase();
+                item.style.display = (name.includes(input) || num.includes(input)) ? "block" : "none";
+            }
+        }
+
+        async function loadCollection() {
+            const grid = document.getElementById('collection-grid');
+            grid.innerHTML = '<div class="col-span-full text-center py-20 font-black text-slate-700 text-2xl italic animate-pulse tracking-tighter">對齊日元匯率同步中...</div>';
+            const { data, error } = await supabaseClient.from('my_collection').select('*').order('card_number', { ascending: true });
+            if (error) { grid.innerHTML = `<p class="text-red-500 text-center col-span-full font-bold">Error: ${error.message}</p>`; return; }
+            
+            const d = new Date();
+            document.getElementById('last-update').innerText = `更新日期：${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} (匯率: ${JPY_TO_HKD.toFixed(4)})`;
+            
+            grid.innerHTML = ''; 
+            data.forEach(card => {
+                const currentHkd = (card.current_market_jpy * JPY_TO_HKD).toLocaleString(undefined, {maximumFractionDigits: 0});
+                const cardDataJson = JSON.stringify(card).replace(/"/g, '&quot;');
+                grid.innerHTML += `
+                    <div class="card-item card-container rounded-xl p-4 group cursor-pointer" data-name="${card.card_name}" data-num="${card.card_number}" onclick='openModal(${cardDataJson})'>
+                        <div class="flex justify-between items-center mb-3 text-left">
+                            <span class="text-sm font-black text-slate-500 italic tracking-tighter">#${card.card_number || '---'}</span>
+                            <span class="${getRarityStyle(card.rarity)}">${card.rarity || 'C'}</span>
+                        </div>
+                        <div class="relative overflow-hidden rounded-lg mb-4 bg-slate-950/80 p-2 aspect-square flex items-center justify-center border border-slate-800 shadow-inner">
+                            <img src="${card.image_url}" class="max-w-full max-h-full object-contain transform group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://images.pokemontcg.io/base1/back.png'">
+                            <div class="absolute inset-0 bg-yellow-400/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+                                <i class="fa-solid fa-magnifying-glass-plus text-2xl text-yellow-400 shadow-xl"></i>
                             </div>
                         </div>
-                    `;
-                    grid.innerHTML += cardHtml;
-                });
-            }
-
-        loadCollection();
+                        <div class="mb-4 text-left">
+                            <h2 class="text-lg font-black text-white leading-tight mb-1 tracking-tight truncate uppercase">${card.card_name}</h2>
+                            <p class="text-[9px] text-slate-500 font-bold tracking-widest uppercase opacity-60 italic leading-none">${card.expansion || '忍者旋風 M4'}</p>
+                        </div>
+                        <div class="pt-4 border-t border-slate-700/50 flex justify-between items-end text-left">
+                            <div>
+                                <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-0.5 opacity-50">預估市價</p>
+                                <p class="text-2xl font-black text-green-400 italic tracking-tighter">HK$${currentHkd}</p>
+                            </div>
+                            <div class="bg-green-500/10 px-2 py-0.5 rounded-lg border border-green-500/20"><span class="text-green-500 text-[9px] font-black tracking-tighter uppercase italic leading-none">實時匯率</span></div>
+                        </div>
+                    </div>`;
+            });
+        }
     </script>
 </body>
 </html>
