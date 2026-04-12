@@ -18,7 +18,7 @@
         .card-container { transition: all 0.3s ease; border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(30, 41, 59, 0.4); }
         .card-container:hover { transform: translateY(-5px); border-color: #eab308; box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.6); }
         .modal-overlay { backdrop-filter: blur(15px); background: rgba(0, 0, 0, 0.85); }
-        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23eab308'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
+        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23eab308'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; padding-right: 3rem !important; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
@@ -34,7 +34,7 @@
             </div>
             <div class="flex gap-8 text-sm font-bold tracking-widest">
                 <button onclick="showSection('home')" class="hover:text-yellow-400 transition-all uppercase">首頁</button>
-                <button onclick="showSection('m4')" class="hover:text-yellow-400 transition-all uppercase">忍者旋風 M4</button>
+                <button onclick="showSection('sets')" class="hover:text-yellow-400 transition-all uppercase">卡牌系列</button>
                 <button onclick="showSection('wishlist')" class="hover:text-yellow-400 transition-all uppercase flex items-center gap-2">
                     <i class="fa-solid fa-heart"></i> 願望清單
                 </button>
@@ -47,33 +47,42 @@
             <div class="inline-block px-3 py-1 mb-6 text-xs font-bold tracking-widest text-yellow-400 border border-yellow-400/20 rounded-full bg-yellow-400/5 uppercase">ESTABLISHED 2026</div>
             <h1 class="text-6xl md:text-8xl font-black mb-8 leading-none tracking-tighter italic uppercase text-white">掌握數據 <br><span class="text-yellow-400">主宰市場</span></h1>
             <p class="text-slate-400 max-w-xl mx-auto text-xl mb-12 font-medium">香港專業寶可夢情報網。即時追蹤日版市場脈動。</p>
-            <button onclick="showSection('m4')" class="bg-yellow-400 text-slate-900 px-12 py-5 rounded-2xl font-black text-xl hover:bg-white transition-all shadow-2xl shadow-yellow-400/20">
-                進入數據中心 <i class="fa-solid fa-chevron-right ml-2 text-sm"></i>
+            <button onclick="showSection('sets')" class="bg-yellow-400 text-slate-900 px-12 py-5 rounded-2xl font-black text-xl hover:bg-white transition-all shadow-2xl shadow-yellow-400/20">
+                瀏覽所有系列 <i class="fa-solid fa-chevron-right ml-2 text-sm"></i>
             </button>
         </section>
 
-        <section id="section-m4" class="hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <section id="section-sets" class="hidden py-12">
+            <h2 class="text-4xl font-black text-white italic uppercase mb-12 border-l-4 border-yellow-400 pl-6 tracking-tighter">Expansion Sets <span class="text-yellow-400">系列總覽</span></h2>
+            <div id="sets-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                </div>
+        </section>
+
+        <section id="section-series-detail" class="hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
             <header class="mb-12 pb-8 border-b border-slate-800/50">
                 <div class="flex flex-col md:flex-row justify-between items-end gap-6">
                     <div class="w-full text-left">
-                        <h2 class="text-5xl font-black text-white tracking-tighter italic uppercase mb-2">忍者旋風 <span class="text-yellow-400">M4</span></h2>
-                        <span id="m4-last-update" class="bg-slate-800 px-3 py-1 rounded text-yellow-500/80 tracking-widest font-mono text-[10px] italic uppercase tracking-tighter">數據載入中...</span>
+                        <button onclick="showSection('sets')" class="text-yellow-400 text-xs font-bold mb-4 flex items-center gap-2 hover:underline uppercase tracking-widest">
+                            <i class="fa-solid fa-arrow-left"></i> Back to Sets
+                        </button>
+                        <h2 id="current-series-title" class="text-5xl font-black text-white tracking-tighter italic uppercase mb-2">---</h2>
+                        <span id="update-date-display" class="bg-slate-800 px-3 py-1 rounded text-yellow-500/80 tracking-widest font-mono text-[10px] italic uppercase">數據載入中...</span>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-                        <select id="m4-sortOrder" onchange="renderM4()" class="bg-slate-800/60 border-2 border-slate-700 rounded-xl px-4 py-3 text-sm font-bold text-white outline-none focus:border-yellow-400 transition-all cursor-pointer sm:w-56">
+                        <select id="sortOrder" onchange="renderGrid()" class="bg-slate-800/60 border-2 border-slate-700 rounded-xl px-4 py-3 text-sm font-bold text-white outline-none focus:border-yellow-400 transition-all cursor-pointer sm:w-64">
+                            <option value="num_asc">卡片編號 (小→大)</option>
+                            <option value="rarity_desc">稀有度 (高→低)</option>
                             <option value="price_desc">價格 (高→低)</option>
                             <option value="price_asc">價格 (低→高)</option>
-                            <option value="rarity_desc">稀有度 (高→低)</option>
-                            <option value="num_asc">卡片編號 (小→大)</option>
                         </select>
                         <div class="relative md:w-80 group">
                             <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-yellow-400 transition-colors"></i>
-                            <input type="text" id="m4-searchInput" onkeyup="renderM4()" placeholder="搜尋編號或名稱..." class="w-full bg-slate-800/40 border-2 border-slate-700 rounded-xl pl-12 pr-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-yellow-400 transition-all">
+                            <input type="text" id="searchInput" onkeyup="renderGrid()" placeholder="搜尋卡片名稱..." class="w-full bg-slate-800/40 border-2 border-slate-700 rounded-xl pl-12 pr-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-yellow-400 transition-all">
                         </div>
                     </div>
                 </div>
             </header>
-            <div id="m4-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 pb-20"></div>
+            <div id="main-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8 pb-20"></div>
         </section>
 
         <section id="section-wishlist" class="hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -98,14 +107,15 @@
                 <div>
                     <h4 class="font-black text-white mb-6 uppercase tracking-widest text-xs">法律資訊</h4>
                     <ul class="text-slate-500 text-xs flex flex-col gap-4">
-                        <li><button onclick="alert('免責聲明：本網站所提供之數據僅供參考，不構成投資建議。')" class="hover:text-yellow-400 transition-colors">免責聲明</button></li>
-                        <li><button onclick="alert('版權聲明：本網站卡片圖像版權均屬任天堂及相關公司所有。')" class="hover:text-yellow-400 transition-colors">版權聲明</button></li>
-                        <li><button onclick="alert('隱私政策：PokeLogbook 尊重您的隱私。本網站不會主動收集個人識別資料。')" class="hover:text-yellow-400 transition-colors">隱私政策</button></li>
+                        <li><button onclick="alert('免責聲明：本網站所提供之數據僅供參考，不構成任何投資建議。市場價格波動劇烈，交易前請自行評估風險。')" class="hover:text-yellow-400 transition-colors">免責聲明</button></li>
+                        <li><button onclick="alert('版權聲明：本網站所有卡片圖像與版權均屬任天堂、Creatures Inc. 及 GAME FREAK inc. 所有。本站僅作教育與學術資訊分享用途。')" class="hover:text-yellow-400 transition-colors">版權聲明</button></li>
+                        <li><button onclick="alert('隱私政策：PokeLogbook 尊重您的隱私。本網站僅顯示公開市場數據，不會主動收集、儲存或追蹤任何訪問者的個人身份識別資料。')" class="hover:text-yellow-400 transition-colors">隱私政策</button></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="font-black text-white mb-6 uppercase tracking-widest text-xs">聯絡與支持</h4>
                     <div class="text-slate-500 text-xs flex flex-col gap-4">
+                        <p class="leading-relaxed text-slate-500">如有任何數據糾錯或建議，<br>請透過郵件與我們聯絡：</p>
                         <p class="flex items-center gap-2">
                             <i class="fa-regular fa-envelope text-yellow-400"></i>
                             <a href="mailto:pokelogbook@gmail.com" class="hover:text-yellow-400 transition-colors font-bold">pokelogbook@gmail.com</a>
@@ -117,8 +127,8 @@
         </div>
     </footer>
 
-    <div id="card-modal" class="modal-overlay fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4 text-left">
-        <div class="bg-slate-900 rounded-3xl p-8 border border-slate-700/50 max-w-5xl w-full max-h-[90vh] overflow-y-auto relative">
+    <div id="card-modal" class="modal-overlay fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-300 flex items-center justify-center p-4">
+        <div class="bg-slate-900 rounded-3xl p-8 border border-slate-700/50 max-w-5xl w-full max-h-[90vh] overflow-y-auto relative text-left">
             <button onclick="closeModal()" class="absolute top-6 right-6 text-3xl text-slate-500 hover:text-white transition-all">&times;</button>
             <div class="grid grid-cols-1 md:grid-cols-[1fr,1.5fr] gap-12 pt-4">
                 <div class="bg-slate-950/50 rounded-2xl p-6 aspect-[3/4] flex items-center justify-center border border-slate-800">
@@ -128,11 +138,11 @@
                     <div>
                         <div class="flex justify-between items-center mb-6">
                             <span id="modal-number" class="text-3xl font-black text-slate-500 italic tracking-tighter">#---</span>
-                            <span id="modal-rarity" class="px-3 py-1 rounded-lg border-2 font-black text-xs uppercase">C</span>
+                            <span id="modal-rarity" class="px-3 py-1 rounded-lg border-2 font-black text-xs uppercase">---</span>
                         </div>
                         <h2 id="modal-name" class="text-4xl md:text-5xl font-black text-white leading-tight mb-4 tracking-tight uppercase">---</h2>
                         <div class="flex gap-4 items-center">
-                            <p class="text-sm text-slate-500 font-bold tracking-widest uppercase opacity-70 italic">忍者旋風 M4</p>
+                            <p id="modal-set-name" class="text-sm text-slate-500 font-bold tracking-widest uppercase opacity-70 italic">SET NAME</p>
                             <button id="modal-wishlist-btn" class="text-2xl text-slate-600 hover:text-yellow-400 transition-all"><i class="fa-solid fa-heart"></i></button>
                         </div>
                     </div>
@@ -162,75 +172,104 @@
         let wishlist = JSON.parse(localStorage.getItem('pokelog_wishlist')) || [];
         const RARITY_WEIGHT = { 'MUR': 110, 'SAR': 100, 'UR': 90, 'SR': 80, 'AR': 70, 'RR': 60, 'R': 50, 'U': 40, 'C': 30 };
 
+        // 系列定義
+        const allSets = [
+            { id: 'M4', name: '忍者旋風 Ninja Spinner', img: 'https://images.pokemontcg.io/sv8a/logo.png', count: '83+' },
+            { id: 'M3', name: '虛無歸零 Nullifying Zero', img: 'https://images.pokemontcg.io/sv8/logo.png', count: '100+' }
+        ];
+
         function showSection(sectionId) {
             document.getElementById('section-home').classList.add('hidden');
-            document.getElementById('section-m4').classList.add('hidden');
+            document.getElementById('section-sets').classList.add('hidden');
+            document.getElementById('section-series-detail').classList.add('hidden');
             document.getElementById('section-wishlist').classList.add('hidden');
+            
             document.getElementById('section-' + sectionId).classList.remove('hidden');
-            if (sectionId === 'm4') initM4();
+            
+            if (sectionId === 'sets') renderSetsMenu();
             if (sectionId === 'wishlist') renderWishlist();
             window.scrollTo(0, 0);
         }
 
-        async function initM4() {
+        function renderSetsMenu() {
+            const grid = document.getElementById('sets-grid');
+            grid.innerHTML = allSets.map(set => `
+                <div onclick="loadSeries('${set.id}')" class="card-container rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer group relative overflow-hidden text-center">
+                    <div class="absolute inset-0 bg-yellow-400/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <img src="${set.img}" class="h-24 object-contain mb-8 group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://fav.farm/📦'">
+                    <h3 class="text-2xl font-black text-white italic uppercase tracking-tighter">${set.name}</h3>
+                    <p class="text-slate-500 font-bold text-xs mt-3 uppercase tracking-widest">Expansion Set | ${set.count} Cards</p>
+                </div>
+            `).join('');
+        }
+
+        async function loadSeries(seriesId) {
+            const setInfo = allSets.find(s => s.id === seriesId);
+            document.getElementById('current-series-title').innerText = setInfo.name;
+            
+            showSection('series-detail');
+            document.getElementById('main-grid').innerHTML = '<div class="col-span-full py-20 text-center font-black text-slate-700 animate-pulse">LOADING COLLECTION...</div>';
+
+            // 獲取匯率
             try {
                 const res = await fetch('https://open.er-api.com/v6/latest/JPY');
                 const rateData = await res.json();
                 JPY_TO_HKD = rateData.rates.HKD;
             } catch(e) { console.error("匯率獲取失敗"); }
 
-            const { data, error } = await supabaseClient.from('my_collection').select('*');
+            // 從 Supabase 抓取該系列數據
+            const { data, error } = await supabaseClient
+                .from('my_collection')
+                .select('*')
+                .eq('series', seriesId);
+
             if (!error) {
                 allCards = data;
-                renderM4();
+                renderGrid();
             }
         }
 
-        function renderM4() {
-            const grid = document.getElementById('m4-grid');
-            const search = document.getElementById('m4-searchInput').value.toLowerCase();
-            const sort = document.getElementById('m4-sortOrder').value;
-            let filtered = allCards.filter(c => c.card_name.toLowerCase().includes(search) || (c.card_number && c.card_number.includes(search)));
-            sortData(filtered, sort);
+        function renderGrid() {
+            const grid = document.getElementById('main-grid');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const sort = document.getElementById('sortOrder').value;
             
-            // 修正一：改回更新日期格式
+            let filtered = allCards.filter(c => c.card_name.toLowerCase().includes(search) || (c.card_number && c.card_number.includes(search)));
+            
+            // 排序
+            filtered.sort((a, b) => {
+                if (sort === 'price_desc') return b.current_market_jpy - a.current_market_jpy;
+                if (sort === 'price_asc') return a.current_market_jpy - b.current_market_jpy;
+                if (sort === 'num_asc') return parseInt(a.card_number) - parseInt(b.card_number);
+                if (sort === 'rarity_desc') return (RARITY_WEIGHT[b.rarity?.toUpperCase()] || 0) - (RARITY_WEIGHT[a.rarity?.toUpperCase()] || 0);
+                return 0;
+            });
+
             const d = new Date();
             const dateStr = `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
-            document.getElementById('m4-last-update').innerText = `更新日期：${dateStr} (匯率: ${JPY_TO_HKD.toFixed(4)})`;
-            
-            grid.innerHTML = generateGridHtml(filtered);
+            document.getElementById('update-date-display').innerText = `更新日期：${dateStr} (匯率: ${JPY_TO_HKD.toFixed(4)})`;
+
+            grid.innerHTML = generateCardsHtml(filtered);
         }
 
         function renderWishlist() {
             const grid = document.getElementById('wishlist-grid');
-            let filtered = allCards.filter(c => wishlist.includes(c.id));
+            const filtered = allCards.filter(c => wishlist.includes(c.id));
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-500 font-bold uppercase tracking-widest italic">願望清單暫無卡片</div>`;
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-500 font-bold uppercase tracking-widest italic border-2 border-dashed border-slate-800 rounded-3xl">願望清單暫無卡片</div>`;
                 return;
             }
-            grid.innerHTML = generateGridHtml(filtered);
+            grid.innerHTML = generateCardsHtml(filtered);
         }
 
-        function sortData(data, sortType) {
-            data.sort((a, b) => {
-                if (sortType === 'price_desc') return b.current_market_jpy - a.current_market_jpy;
-                if (sortType === 'price_asc') return a.current_market_jpy - b.current_market_jpy;
-                if (sortType === 'num_asc') return parseInt(a.card_number) - parseInt(b.card_number);
-                if (sortType === 'rarity_desc') return (RARITY_WEIGHT[b.rarity?.toUpperCase()] || 0) - (RARITY_WEIGHT[a.rarity?.toUpperCase()] || 0);
-                return 0;
-            });
-        }
-
-        function generateGridHtml(cards) {
+        function generateCardsHtml(cards) {
             return cards.map(card => {
                 const hkd = (card.current_market_jpy * JPY_TO_HKD).toLocaleString(undefined, {maximumFractionDigits: 0});
                 const isWishlisted = wishlist.includes(card.id);
                 const cardJson = JSON.stringify(card).replace(/"/g, '&quot;');
-                
-                // 修正二：編號移至心心正右方，字體大小與心心同步
                 return `
                     <div class="card-container rounded-2xl p-4 group cursor-pointer relative" onclick='openModal(${cardJson})'>
-                        <div class="flex justify-between items-center mb-3 text-left">
+                        <div class="flex justify-between items-center mb-3">
                             <div class="flex items-center gap-2">
                                 <button onclick="toggleWishlist('${card.id}', event)" class="text-lg transition-all ${isWishlisted ? 'text-yellow-400' : 'text-slate-700 hover:text-yellow-400/50'}">
                                     <i class="fa-solid fa-heart"></i>
@@ -247,7 +286,7 @@
                             <p class="text-[9px] text-slate-500 font-bold tracking-widest uppercase opacity-60 italic leading-none">市場估價</p>
                         </div>
                         <div class="pt-3 border-t border-slate-700/50 flex justify-between items-end">
-                            <p class="text-xl font-black text-green-400 italic tracking-tighter text-left">HK$${hkd}</p>
+                            <p class="text-xl font-black text-green-400 italic tracking-tighter">HK$${hkd}</p>
                             <div class="bg-green-500/10 px-2 py-0.5 rounded-lg"><span class="text-green-500 text-[8px] font-black italic">LIVE</span></div>
                         </div>
                     </div>`;
@@ -260,8 +299,7 @@
             if (index === -1) wishlist.push(cardId);
             else wishlist.splice(index, 1);
             localStorage.setItem('pokelog_wishlist', JSON.stringify(wishlist));
-            if (!document.getElementById('section-m4').classList.contains('hidden')) renderM4();
-            if (!document.getElementById('section-wishlist').classList.contains('hidden')) renderWishlist();
+            renderGrid();
             updateModalWishlistBtn(cardId);
         }
 
@@ -269,14 +307,18 @@
             document.getElementById('modal-image').src = card.image_url;
             document.getElementById('modal-number').innerText = `#${card.card_number || '---'}`;
             document.getElementById('modal-name').innerText = card.card_name;
+            document.getElementById('modal-set-name').innerText = card.series || 'Expansion Set';
             document.getElementById('modal-jpy').innerText = `¥${(card.current_market_jpy || 0).toLocaleString()}`;
             document.getElementById('modal-price').innerText = `HK$${(card.current_market_jpy * JPY_TO_HKD).toLocaleString(undefined, {maximumFractionDigits: 0})}`;
             document.getElementById('modal-rate-info').innerText = `1 JPY = ${JPY_TO_HKD.toFixed(4)} HKD`;
+            
             const rTag = document.getElementById('modal-rarity');
             rTag.innerText = card.rarity || 'C';
             rTag.className = getRarityStyle(card.rarity) + " text-sm px-4 py-1";
+            
             document.getElementById('modal-wishlist-btn').onclick = () => toggleWishlist(card.id);
             updateModalWishlistBtn(card.id);
+            
             document.getElementById('card-modal').classList.remove('hidden');
             setTimeout(() => { document.getElementById('card-modal').classList.remove('opacity-0'); }, 10);
         }
@@ -300,6 +342,7 @@
             return base + "bg-slate-700/50 text-slate-400 border-slate-600";
         }
 
+        // 防盜功能
         document.addEventListener('contextmenu', e => { if (e.target.tagName === 'IMG') e.preventDefault(); });
     </script>
 </body>
