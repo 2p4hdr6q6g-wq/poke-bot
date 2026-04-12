@@ -221,7 +221,7 @@
             const { data, error } = await supabaseClient
                 .from('my_collection')
                 .select('*')
-                .eq('series', seriesId);
+                .eq('seriesID', seriesId);
 
             if (!error) {
                 allCards = data;
