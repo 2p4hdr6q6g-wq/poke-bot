@@ -18,12 +18,22 @@
         .card-container { transition: all 0.3s ease; border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(30, 41, 59, 0.4); }
         .card-container:hover { transform: translateY(-5px); border-color: #eab308; box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.6); }
         .modal-overlay { backdrop-filter: blur(15px); background: rgba(0, 0, 0, 0.85); }
-        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23eab308'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; padding-right: 3rem !important; }
+
+        select { 
+            appearance: none; 
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23eab308'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); 
+            background-repeat: no-repeat; 
+            background-position: right 1rem center; 
+            background-size: 1em; 
+            padding-right: 3rem !important; 
+        }
+        
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
+
 <body class="text-slate-100 flex flex-col min-h-screen text-left">
 
     <nav class="glass-nav sticky top-0 z-40 px-6 py-4">
@@ -54,7 +64,7 @@
 
         <section id="section-sets" class="hidden py-12">
             <h2 class="text-4xl font-black text-white italic uppercase mb-12 border-l-4 border-yellow-400 pl-6 tracking-tighter">Expansion Sets <span class="text-yellow-400">系列總覽</span></h2>
-            <div id="sets-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div id="sets-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 </div>
         </section>
 
@@ -175,8 +185,8 @@
 
         // 系列定義
         const allSets = [
-            { id: 'M4', name: '忍者旋風 Ninja Spinner M4', img: 'https://xcjygoliiiaghsbrnmrs.supabase.co/storage/v1/object/public/card-images/m4%20pack.webp', count: '120' },
-            { id: 'M3', name: '虛無歸零 Nullifying Zero M3', img: 'https://xcjygoliiiaghsbrnmrs.supabase.co/storage/v1/object/public/card-images/m3%20pack.webp', count: '117' }
+            { id: 'M4', name: '忍者旋風 Ninja Spinner M4', img: 'https://xcjygoliiiaghsbrnmrs.supabase.co/storage/v1/object/public/card-images/m4%20pack.webp', count: '120', release: '2026-03-13'},
+            { id: 'M3', name: '虛無歸零 Nullifying Zero M3', img: 'https://xcjygoliiiaghsbrnmrs.supabase.co/storage/v1/object/public/card-images/m3%20pack.webp', count: '117', release: '2026-01-23'}
         ];
 
         function showSection(sectionId) {
@@ -184,9 +194,7 @@
             document.getElementById('section-sets').classList.add('hidden');
             document.getElementById('section-series-detail').classList.add('hidden');
             document.getElementById('section-wishlist').classList.add('hidden');
-            
             document.getElementById('section-' + sectionId).classList.remove('hidden');
-            
             if (sectionId === 'sets') renderSetsMenu();
             if (sectionId === 'wishlist') renderWishlist();
             window.scrollTo(0, 0);
@@ -195,11 +203,27 @@
         function renderSetsMenu() {
             const grid = document.getElementById('sets-grid');
             grid.innerHTML = allSets.map(set => `
-                <div onclick="loadSeries('${set.id}')" class="card-container rounded-3xl p-10 flex flex-col items-center justify-center cursor-pointer group relative overflow-hidden text-center">
-                    <div class="absolute inset-0 bg-yellow-400/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <img src="${set.img}" class="h-24 object-contain mb-8 group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://fav.farm/📦'">
-                    <h3 class="text-2xl font-black text-white italic uppercase tracking-tighter">${set.name}</h3>
-                    <p class="text-slate-500 font-bold text-xs mt-3 uppercase tracking-widest">Expansion Set | ${set.count} Cards</p>
+                <div onclick="loadSeries('${set.id}')" 
+                     class="card-container rounded-2xl cursor-pointer group relative overflow-hidden transition-all duration-300
+                            aspect-[2/3] p-0 shadow-lg bg-slate-900 border border-slate-800">
+            
+                    <img src="${set.img}" 
+                         class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 z-10" 
+                         onerror="this.src='https://images.pokemontcg.io/base1/back.png'">
+            
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent z-20 opacity-90"></div>
+            
+                    <div class="absolute bottom-0 left-0 right-0 z-30 p-4 text-left">
+                        <h3 class="text-lg font-black text-white italic uppercase leading-tight drop-shadow-md">${set.name}</h3>
+                        <div class="flex flex-col mt-2 gap-1">
+                            <span class="text-[11px] text-yellow-400 font-bold uppercase tracking-widest bg-yellow-400/10 self-start px-2 py-0.5 rounded border border-yellow-400/20">
+                                ${set.count} Cards
+                            </span>
+                            <span class="text-[11px] text-yellow-400 font-bold uppercase tracking-widest bg-yellow-400/10 self-start px-2 py-0.5 rounded border border-yellow-400/20">
+                                Released: ${set.release}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             `).join('');
         }
