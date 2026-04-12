@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PokeLogbook - 香港專業寶可夢情報數據庫</title>
     
-    <meta name="description" content="PokeLogbook 提供即時日版寶可夢卡牌市場數據，配合日元自動匯率換算港幣。">
+    <meta name="description" content="PokeLogbook 提供日版寶可夢卡牌市場數據，配合日元自動匯率換算港幣。">
     <link rel="icon" href="https://fav.farm/🔮">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -46,7 +46,7 @@
         <section id="section-home" class="py-24 text-center">
             <div class="inline-block px-3 py-1 mb-6 text-xs font-bold tracking-widest text-yellow-400 border border-yellow-400/20 rounded-full bg-yellow-400/5 uppercase">ESTABLISHED 2026</div>
             <h1 class="text-6xl md:text-8xl font-black mb-8 leading-none tracking-tighter italic uppercase text-white">掌握數據 <br><span class="text-yellow-400">主宰市場</span></h1>
-            <p class="text-slate-400 max-w-xl mx-auto text-xl mb-12 font-medium">香港專業寶可夢情報網。即時追蹤日版市場脈動。</p>
+            <p class="text-slate-400 max-w-xl mx-auto text-xl mb-12 font-medium">香港專業寶可夢情報網。追蹤日版市場脈動。</p>
             <button onclick="showSection('sets')" class="bg-yellow-400 text-slate-900 px-12 py-5 rounded-2xl font-black text-xl hover:bg-white transition-all shadow-2xl shadow-yellow-400/20">
                 瀏覽所有系列 <i class="fa-solid fa-chevron-right ml-2 text-sm"></i>
             </button>
@@ -70,10 +70,11 @@
                     </div>
                     <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
                         <select id="sortOrder" onchange="renderGrid()" class="bg-slate-800/60 border-2 border-slate-700 rounded-xl px-4 py-3 text-sm font-bold text-white outline-none focus:border-yellow-400 transition-all cursor-pointer sm:w-64">
-                            <option value="num_asc">卡片編號 (小→大)</option>
-                            <option value="rarity_desc">稀有度 (高→低)</option>
                             <option value="price_desc">價格 (高→低)</option>
                             <option value="price_asc">價格 (低→高)</option>
+                            <option value="num_asc">卡片編號 (小→大)</option>
+                            <option value="num_desc">卡片編號 (大→小)</option>
+                            <option value="rarity_desc">稀有度 (高→低)</option>
                         </select>
                         <div class="relative md:w-80 group">
                             <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-yellow-400 transition-colors"></i>
@@ -101,7 +102,7 @@
                     <i class="fa-solid fa-wand-magic-sparkles text-2xl text-yellow-400"></i>
                     <span class="font-black text-2xl text-yellow-400 tracking-tighter">POKELOGBOOK</span>
                 </div>
-                <p class="text-slate-500 text-sm leading-relaxed max-w-sm">致力於為香港寶可夢卡牌玩家提供最透明、即時的市場行情分析。數據源自公開市場成交紀錄，僅供參考。</p>
+                <p class="text-slate-500 text-sm leading-relaxed max-w-sm">致力於為香港寶可夢卡牌玩家提供最透明的市場行情分析。數據源自公開市場，僅供參考。</p>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 text-left">
                 <div>
@@ -174,8 +175,8 @@
 
         // 系列定義
         const allSets = [
-            { id: 'M4', name: '忍者旋風 Ninja Spinner', img: 'https://images.pokemontcg.io/sv8a/logo.png', count: '83+' },
-            { id: 'M3', name: '虛無歸零 Nullifying Zero', img: 'https://images.pokemontcg.io/sv8/logo.png', count: '100+' }
+            { id: 'M4', name: '忍者旋風 Ninja Spinner M4', img: 'https://xcjygoliiiaghsbrnmrs.supabase.co/storage/v1/object/public/card-images/m4%20pack.webp', count: '120' },
+            { id: 'M3', name: '虛無歸零 Nullifying Zero M3', img: 'https://xcjygoliiiaghsbrnmrs.supabase.co/storage/v1/object/public/card-images/m3%20pack.webp', count: '117' }
         ];
 
         function showSection(sectionId) {
